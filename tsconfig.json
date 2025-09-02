@@ -1,29 +1,26 @@
 {
-      "compilerOptions": {
-        "target": "ESNext",// tell ts to compile your code using latest ecmascript features
-        "module": "ESNext", // need to declare type= module in package.json and uses the latest esm syntax like import/export
-        "moduleResolution": "node",
-        "lib": ["esnext"],
-        "outDir": "./dist",// compiled js files will be placed inside dist folder
-        "rootDir": "./src", // tells compiler where the ts files are located
-        "strict": true,
-        "esModuleInterop": true,// allows import x from ‘commonjs-module’ even if module uses module.exports = x
-        "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true,// avoid os specific casing issues
-        "resolveJsonModule": true, // lets you import from json files
-        "isolatedModules": true, //ensure that each ts file is able compile in its own
-        "emitDecoratorMetadata": true, // requires for typeorm or framework like nest js , used with reflect-metadata
-        "experimentalDecorators": true,// require for decorators
-        "allowSyntheticDefaultImports": true, // allows default import syntax for common js modules that dont have a default export like import fs from “fs”
-        "strictPropertyInitialization": false, // disables the check that all class properties must be initialized in the constructor like in the typeorm
-        "allowImportingTsExtensions": true,// allows import mycomp from ‘./mycom.ts’
-        "noEmit": true  ,// it just type check the code  
-        "include": [
-        "src/**/*.ts"  // tells ts to compile only .ts files inside src folder
-      ],
-      "exclude": [
-        "node_modules",  // prevents ts from compiling files inside node modules and dist
-        "dist"
-      ]
-    }
+  "compilerOptions": {
+    "target": "ES2022",           // More stable than ESNext
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "strictPropertyInitialization": false,
+    "allowImportingTsExtensions": false,  // Must be false for TSC
+    "noEmit": false,                      // Must be false to emit files
+    "declaration": false,                 // Skip .d.ts files for faster builds
+    "sourceMap": true                     // Helpful for debugging
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }
