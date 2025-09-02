@@ -1,4 +1,5 @@
 import swaggerJSDoc from "swagger-jsdoc";
+import { isProd } from "../lib";
 
 const options: swaggerJSDoc.Options = {
       definition: {
@@ -9,7 +10,25 @@ const options: swaggerJSDoc.Options = {
                   description: 'API Documentation for Prime CreativeHub App',
             },
       },
-      apis: ["./src/modules/**/*.ts"],
+      tags: [
+            {
+                  name: "Authentication",
+                  description: "Authentication routes",
+            },
+            {
+                  name: "Users",
+                  description: "User routes",
+            },
+            {
+                  name: "History",
+                  description: "History routes",
+            },
+            {
+                  name: "Teams",
+                  description: "Teams routes",
+            },
+      ],
+      apis: [isProd ? process.cwd() + "/dist/modules/**/*.route.js" : process.cwd() + "/src/modules/**/*.route.ts"],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
