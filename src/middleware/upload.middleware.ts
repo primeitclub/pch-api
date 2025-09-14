@@ -1,15 +1,26 @@
-import { NextFunction, Request } from "express";
-import { Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import multer, { FileFilterCallback } from "multer";
 import Supabase from "../lib/supabase";
 import { env } from "../lib/env";
 import { HttpError } from "../lib/httpError";
+import path from "path";
+import fs from "fs";
 
 export const upload = multer({
-      storage: multer.memoryStorage(),
+      storage: multer.diskStorage({
+            destination: (req, file, cb) => {
+                  cb(null, `public/${env.FOLDER_NAME}/`);
+            },
+            filename: (req, file, cb) => {
+                  console.log("file.filename", file);
+                  cb(null, file.originalname.split('.').slice(0, -1).join('.') + '-' + Date.now() + '.' + file.originalname.split('.').slice(-1)[0]);
+            },
+      }),
       fileFilter: (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
             const ok = ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(file.mimetype);
-            if (ok) cb(null, true);
+            if (ok) {
+                  cb(null, true);
+            }
             else {
                   const err = new HttpError(400, "Invalid file type");
                   cb(err as any, false);
@@ -28,29 +39,51 @@ export const fileErrorHandler = (err: Error, req: Request, res: Response, next: 
             res.status(400).json({ code: 400, message: "Bad request", details: err.message });
       }
       else {
+            console.log("error in fileErrorHandler", err);
             res.status(500).json({ code: 500, message: "Internal server error" });
       }
 };
 
 export const handleUpload = async (req: Request, res: Response, next: NextFunction) => {
       try {
-            console.log("req.file", req.file);
             const { file } = req;
+            console.log("file in handleUpload", file);
             if (!file) {
-                  throw new HttpError(400, "File is required");
+                  // throw new HttpError(400, "File is required");
+                  next();
+                  return;
             }
-            const filePath = `${env.FOLDER_NAME}/${file.originalname}`;
+            const filePath = `${env.FOLDER_NAME}/${file.filename}`;
             const data = await Supabase.uploadFile(env.BUCKET_NAME!, filePath, file);
-            console.log("data", data);
+            // req.body.img_sub_url = data.imageUrl.toString();
             req.body.img_url = data.imageUrl.toString();
             req.body.img_path = data.fullPath;
+            req.body.file_path = filePath;
+            console.log("req.body.img_path", req.body.img_path);
+            // req.body.img_url = `${env.BASE_URL}/${env.FOLDER_NAME}/${file.filename}`;
+
             next();
       } catch (error) {
-            console.log("error in handleUpload", error);
             if (error instanceof HttpError) {
                   res.status(error.status).json({ code: error.status, message: error.message, details: error.details });
             } else {
+                  console.log("error in handleUpload", error);
                   res.status(500).json({ code: 500, message: "Internal server error" });
             }
+      }
+};
+
+export const deleteFile = async (filePath: string) => {
+      try {
+            fs.unlink(`public/${filePath}`, (err) => {
+                  if (err) {
+                        throw err;
+                  } else {
+                        return true;
+                  }
+            });
+      } catch (error) {
+            console.log("error in deleteFile", error);
+            throw new HttpError(400, "Failed to delete file");
       }
 };
