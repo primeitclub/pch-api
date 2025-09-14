@@ -3,17 +3,23 @@ import Supabase from "../../lib/supabase";
 import { AuthenticatedRequest } from "../../utils/types";
 import { CreateTeamDto, DeleteTeamDto, GetTeamByYearDto, TeamDto, UpdateTeamDto } from "./team.dto";
 import TeamService from "./team.service";
-import { Response } from "express";
+import { Request, Response } from "express";
+import { deleteFile } from "../../middleware/upload.middleware";
 class TeamController {
       private teamService = new TeamService()
 
       createTeam = async (req: AuthenticatedRequest, res: Response) => {
             try {
-                  console.log("Req headers", req.headers);
                   const parsedStartingYear = parseInt(req.body.starting_year);
                   const parsedEndingYear = parseInt(req.body.ending_year);
-                  const isLead = req.body.is_lead === 'true' ? true : false;
+                  // const isLead = req.body.is_lead === 'true' ? true : false;
+                  const isLead = req.body.designation.toLowerCase() === 'creative lead' ? true : false;
+                  const isExist = await this.teamService.getTeamLead(parsedStartingYear, parsedEndingYear);
 
+                  console.log("isExist", isExist);
+                  if (isExist && isLead) {
+                        throw new HttpError(400, "Creative lead already exists");
+                  }
                   const parsed = CreateTeamDto.safeParse({
                         ...req.body,
                         user_id: req.user.id,
@@ -22,11 +28,9 @@ class TeamController {
                         ending_year: parsedEndingYear,
                         created_at: new Date().toISOString(),
                   });
-                  console.log("parsed", parsed);
                   if (!parsed.success) {
-                        console.log("Deleting file", req.body.img_url);
                         await Supabase.deleteFile(env.BUCKET_NAME!, req.body.img_path);
-                        console.log("error in createTeam", parsed.error);
+                        await deleteFile(req.body.img_path);
                         throw new HttpError(400, "Invalid request body", parsed.error.issues);
                   }
                   const team = await this.teamService.createTeam(parsed.data);
@@ -35,7 +39,7 @@ class TeamController {
                         data: CreateTeamDto.parse(team),
                   });
             } catch (error) {
-                  console.log("error in createTeam", error);
+                  console.log("error", error);
                   if (error instanceof HttpError) {
                         res.status(error.status).json({ code: error.status, message: error.message, details: error.details });
                   } else {
@@ -46,15 +50,25 @@ class TeamController {
 
       updateTeam = async (req: AuthenticatedRequest, res: Response) => {
             try {
+                  const parsedStartingYear = parseInt(req.body?.starting_year);
+                  const parsedEndingYear = parseInt(req.body?.ending_year);
+                  const isLead = req.body?.designation?.toLowerCase() === 'creative lead' ? true : false;
+                  const isExistById = await this.teamService.getTeamLeadById(req.params.id);
+                  if (isExistById && isLead) {
+                        throw new HttpError(400, "Creative lead already exists");
+                  }
+                  console.log("req.body?.img_path", req.body);
                   const parsed = UpdateTeamDto.safeParse({
                         id: req.params.id,
                         ...req.body,
+                        ...(parsedStartingYear && { starting_year: parsedStartingYear }),
+                        ...(parsedEndingYear && { ending_year: parsedEndingYear }),
+                        is_lead: isLead,
                         user_id: req.user.id,
                   });
                   if (!parsed.success) {
-                        console.log("Deleting file", req.body.img_url);
-                        await Supabase.deleteFile(env.BUCKET_NAME!, req.body.img_path);
-                        console.log("error in updateTeam", parsed.error);
+                        await Supabase.deleteFile(env.BUCKET_NAME!, req.body?.img_path);
+                        await deleteFile(req.body?.file_path);
                         throw new HttpError(400, "Invalid request body", parsed.error.issues);
                   }
                   const team = await this.teamService.updateTeam({
@@ -66,6 +80,7 @@ class TeamController {
                         data: UpdateTeamDto.parse(team),
                   });
             } catch (error) {
+                  console.log("error in updateTeam", error);
                   if (error instanceof HttpError) {
                         res.status(error.status).json({ code: error.status, message: error.message, details: error.details });
                   } else {
@@ -96,7 +111,7 @@ class TeamController {
             }
       }
 
-      getTeamByYear = async (req: AuthenticatedRequest, res: Response) => {
+      getTeamByYear = async (req: Request, res: Response) => {
             try {
                   const parsed = GetTeamByYearDto.safeParse({
                         starting_year: parseInt(req.body.starting_year),
@@ -118,6 +133,23 @@ class TeamController {
                   }
             }
       }
+
+      getLatestTeam = async (req: Request, res: Response) => {
+            try {
+                  const team = await this.teamService.getLatestTeam();
+                  res.status(200).json({
+                        message: "Latest team fetched successfully",
+                        data: TeamDto.parse(team),
+                  });
+            } catch (error) {
+                  if (error instanceof HttpError) {
+                        res.status(error.status).json({ code: error.status, message: error.message, details: error.details });
+                  } else {
+                        res.status(500).json({ code: 500, message: "Internal server error" });
+                  }
+            }
+      }
+
 }
 
 export default TeamController;

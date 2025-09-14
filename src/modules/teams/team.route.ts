@@ -39,9 +39,6 @@ const router = Router();
  *               instagram_url:
  *                 type: string
  *                 description: The Instagram URL of the team
- *               is_lead:
- *                 type: boolean
- *                 description: Whether the team is the lead
  *               designation:
  *                 type: string
  *                 description: The designation of the team
@@ -147,9 +144,6 @@ router.post("/", authenticate, upload.single('img_url'), fileErrorHandler, handl
  *               instagram_url:
  *                 type: string
  *                 description: The Instagram URL of the team
- *               is_lead:
- *                 type: boolean
- *                 description: Whether the team is the lead
  *               designation:
  *                 type: string
  *                 description: The designation of the team
@@ -215,7 +209,7 @@ router.post("/", authenticate, upload.single('img_url'), fileErrorHandler, handl
  *       500:
  *         description: Internal server error
  */
-router.put("/:id", authenticate, upload.single('img_url'), handleUpload, teamController.updateTeam);
+router.put("/:id", authenticate, upload.single('img_url'), fileErrorHandler, handleUpload, teamController.updateTeam);
 
 /**   
  * @swagger
@@ -331,6 +325,72 @@ router.delete("/:id", authenticate, teamController.deleteTeam);
  *       500:
  *         description: Internal server error
  */
-router.post("/get-by-year", authenticate, teamController.getTeamByYear);
+router.post("/get-by-year", teamController.getTeamByYear);
+
+/**   
+ * @swagger
+ * /api/v1/teams/get-latest:
+ *   get:
+ *     tags:
+ *       - Teams
+ *     summary: Get the latest team
+ *     description: Get the latest team
+ *     responses:
+ *       200:
+ *         description: Latest team fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: The message of the response
+ *                 data:
+ *                   type: object
+ *                   description: The data of the response
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       description: The id of the team
+ *                     name:
+ *                       type: string
+ *                       description: The name of the team
+ *                     starting_year:
+ *                       type: number
+ *                       description: The starting year of the team
+ *                     ending_year:
+ *                       type: number
+ *                       description: The ending year of the team
+ *                     github_url:
+ *                       type: string
+ *                       description: The GitHub URL of the team
+ *                     linkedin_url:
+ *                       type: string
+ *                       description: The LinkedIn URL of the team
+ *                     instagram_url:
+ *                       type: string
+ *                       description: The Instagram URL of the team
+ *                     is_lead:
+ *                       type: boolean
+ *                       description: The is lead of the team
+ *                     designation:
+ *                       type: string
+ *                       description: The designation of the team
+ *                     role:
+ *                       type: string
+ *                       description: The role of the team
+ *                     img_url:
+ *                       type: string
+ *                       description: The image URL of the team
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
+ */
+router.get("/get-latest", teamController.getLatestTeam);
+
 
 export default router;

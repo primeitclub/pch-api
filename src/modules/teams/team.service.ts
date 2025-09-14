@@ -42,6 +42,39 @@ class TeamService {
             }
             return data;
       }
+
+      getTeamLead = async (starting_year: number, ending_year: number) => {
+            const { data, error } = await Supabase.adminClient().from('team').select('*').eq('is_lead', true).eq('starting_year', starting_year).eq('ending_year', ending_year).single();
+            console.log("error", error);
+            if (error) {
+                  if (error.code === 'PGRST116') {
+                        return null;
+                  }
+                  throw new HttpError(400, error.message);
+            }
+            return data;
+      }
+
+      getTeamLeadById = async (id: string) => {
+            const { data, error } = await Supabase.adminClient().from('team').select('*').eq('is_lead', true).eq('id', id).single();
+            console.log("error", error);
+            console.log("data", data);
+            if (error) {
+                  if (error.code === 'PGRST116') {
+                        return null;
+                  }
+                  throw new HttpError(400, error.message);
+            }
+            return data;
+      }
+
+      getLatestTeam = async () => {
+            const { data, error } = await Supabase.adminClient().from('team').select('*').order('starting_year', { ascending: false }).order('ending_year', { ascending: false }).limit(1);
+            if (error) {
+                  throw new HttpError(400, error.message);
+            }
+            return data;
+      }
 }
 
 export default TeamService;
