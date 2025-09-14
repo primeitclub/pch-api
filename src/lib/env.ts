@@ -13,8 +13,15 @@ const Env = z.object({
       FOLDER_NAME: z.string().min(1),
       // Logging
       LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
-            .default(process.env.NODE_ENV === 'production' ? 'info' : 'debug')
+            .default(process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
 
+      // Mail
+      EMAIL_USER: z.string().min(1),
+      EMAIL_PASS: z.string().min(1),
+      EMAIL_TO: z.string().min(1),
+
+      // Cron
+      CRON_TIME: z.string().min(1),
 });
 
 export const env = Env.parse(process.env);
