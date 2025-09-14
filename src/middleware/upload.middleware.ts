@@ -12,7 +12,6 @@ export const upload = multer({
                   cb(null, `public/${env.FOLDER_NAME}/`);
             },
             filename: (req, file, cb) => {
-                  console.log("file.filename", file);
                   cb(null, file.originalname.split('.').slice(0, -1).join('.') + '-' + Date.now() + '.' + file.originalname.split('.').slice(-1)[0]);
             },
       }),
@@ -39,7 +38,6 @@ export const fileErrorHandler = (err: Error, req: Request, res: Response, next: 
             res.status(400).json({ code: 400, message: "Bad request", details: err.message });
       }
       else {
-            console.log("error in fileErrorHandler", err);
             res.status(500).json({ code: 500, message: "Internal server error" });
       }
 };
@@ -47,7 +45,6 @@ export const fileErrorHandler = (err: Error, req: Request, res: Response, next: 
 export const handleUpload = async (req: Request, res: Response, next: NextFunction) => {
       try {
             const { file } = req;
-            console.log("file in handleUpload", file);
             if (!file) {
                   // throw new HttpError(400, "File is required");
                   next();
@@ -59,7 +56,6 @@ export const handleUpload = async (req: Request, res: Response, next: NextFuncti
             req.body.img_url = data.imageUrl.toString();
             req.body.img_path = data.fullPath;
             req.body.file_path = filePath;
-            console.log("req.body.img_path", req.body.img_path);
             // req.body.img_url = `${env.BASE_URL}/${env.FOLDER_NAME}/${file.filename}`;
 
             next();
@@ -67,7 +63,6 @@ export const handleUpload = async (req: Request, res: Response, next: NextFuncti
             if (error instanceof HttpError) {
                   res.status(error.status).json({ code: error.status, message: error.message, details: error.details });
             } else {
-                  console.log("error in handleUpload", error);
                   res.status(500).json({ code: 500, message: "Internal server error" });
             }
       }
@@ -83,7 +78,6 @@ export const deleteFile = async (filePath: string) => {
                   }
             });
       } catch (error) {
-            console.log("error in deleteFile", error);
             throw new HttpError(400, "Failed to delete file");
       }
 };

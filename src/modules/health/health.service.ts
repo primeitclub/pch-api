@@ -8,7 +8,6 @@ class HealthService {
             logger.info("Health Check: I am running", data);
             // await Mail.sendMail(env.EMAIL_TO, "Health check", "I am running");
             if (error) {
-                  console.log("error in health service", error);
                   throw new HttpError(400, error.message);
             }
             return data;

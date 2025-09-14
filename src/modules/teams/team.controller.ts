@@ -15,8 +15,6 @@ class TeamController {
                   // const isLead = req.body.is_lead === 'true' ? true : false;
                   const isLead = req.body.designation.toLowerCase() === 'creative lead' ? true : false;
                   const isExist = await this.teamService.getTeamLead(parsedStartingYear, parsedEndingYear);
-
-                  console.log("isExist", isExist);
                   if (isExist && isLead) {
                         throw new HttpError(400, "Creative lead already exists");
                   }
@@ -39,7 +37,6 @@ class TeamController {
                         data: CreateTeamDto.parse(team),
                   });
             } catch (error) {
-                  console.log("error", error);
                   if (error instanceof HttpError) {
                         res.status(error.status).json({ code: error.status, message: error.message, details: error.details });
                   } else {
@@ -57,7 +54,6 @@ class TeamController {
                   if (isExistById && isLead) {
                         throw new HttpError(400, "Creative lead already exists");
                   }
-                  console.log("req.body?.img_path", req.body);
                   const parsed = UpdateTeamDto.safeParse({
                         id: req.params.id,
                         ...req.body,
@@ -80,7 +76,6 @@ class TeamController {
                         data: UpdateTeamDto.parse(team),
                   });
             } catch (error) {
-                  console.log("error in updateTeam", error);
                   if (error instanceof HttpError) {
                         res.status(error.status).json({ code: error.status, message: error.message, details: error.details });
                   } else {

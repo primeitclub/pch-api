@@ -4,7 +4,6 @@ import { HttpError } from "./httpError";
 
 class Supabase {
       public static publicClient() {
-            console.log(env.SUPABASE_URL.toString(), env.SUPABASE_PUBLISHABLE_KEY!);
             const client = createClient(env.SUPABASE_URL.toString(), env.SUPABASE_PUBLISHABLE_KEY!, {
                   auth: {
                         autoRefreshToken: false,
@@ -66,15 +65,12 @@ class Supabase {
       }
 
       public static async uploadFile(bucketName: string, filePath: string, file: Express.Multer.File) {
-            console.log("uploadFile", bucketName, filePath, file);
             const { data, error } = await Supabase.adminClient().storage.from(bucketName).upload(filePath, file.buffer, {
                   upsert: true,
                   contentType: file.mimetype,
             });
             const imgData = Supabase.adminClient().storage.from(bucketName).getPublicUrl(filePath);
-            console.log("data in uploadFile", data);
             if (error) {
-                  console.log("error in uploadFile", error);
                   throw new HttpError(400, error.message);
             }
             return { ...data, imageUrl: imgData.data.publicUrl };

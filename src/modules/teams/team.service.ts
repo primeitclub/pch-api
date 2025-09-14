@@ -45,7 +45,6 @@ class TeamService {
 
       getTeamLead = async (starting_year: number, ending_year: number) => {
             const { data, error } = await Supabase.adminClient().from('team').select('*').eq('is_lead', true).eq('starting_year', starting_year).eq('ending_year', ending_year).single();
-            console.log("error", error);
             if (error) {
                   if (error.code === 'PGRST116') {
                         return null;
@@ -57,8 +56,6 @@ class TeamService {
 
       getTeamLeadById = async (id: string) => {
             const { data, error } = await Supabase.adminClient().from('team').select('*').eq('is_lead', true).eq('id', id).single();
-            console.log("error", error);
-            console.log("data", data);
             if (error) {
                   if (error.code === 'PGRST116') {
                         return null;

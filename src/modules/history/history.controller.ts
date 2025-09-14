@@ -51,7 +51,6 @@ class HistoryController {
       }
       updateHistory = async (req: AuthenticatedRequest, res: Response) => {
             try {
-                  console.log("req.body", req.body);
                   const parsed = UpdateHistoryDto.safeParse(
                         {
                               id: req.params.id,
@@ -71,7 +70,6 @@ class HistoryController {
                         data: HistoryDto.parse(history),
                   });
             } catch (error) {
-                  console.log("error", error);
                   if (error instanceof HttpError) {
                         res.status(error.status).json({ code: error.status, message: error.message, details: error.details });
                   } else {
