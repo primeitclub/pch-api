@@ -51,7 +51,13 @@ export const handleUpload = async (req: Request, res: Response, next: NextFuncti
                   return;
             }
             const filePath = `${env.FOLDER_NAME}/${file.filename}`;
-            const data = await Supabase.uploadFile(env.BUCKET_NAME!, filePath, file);
+            // here we are reading the file from the disk and buffer need to be manaully done
+            const buffer = fs.readFileSync(file.path);
+            const convertedFile = new File([buffer], file.originalname, {
+                  type: file.mimetype,
+                  lastModified: Date.now(),
+            });
+            const data = await Supabase.uploadFile(env.BUCKET_NAME!, filePath, convertedFile);
             // req.body.img_sub_url = data.imageUrl.toString();
             req.body.img_url = data.imageUrl.toString();
             req.body.img_path = data.fullPath;

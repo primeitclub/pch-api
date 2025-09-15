@@ -64,10 +64,10 @@ class Supabase {
             return data;
       }
 
-      public static async uploadFile(bucketName: string, filePath: string, file: Express.Multer.File) {
-            const { data, error } = await Supabase.adminClient().storage.from(bucketName).upload(filePath, file.buffer, {
+      public static async uploadFile(bucketName: string, filePath: string, file: File) {
+            const { data, error } = await Supabase.adminClient().storage.from(bucketName).upload(filePath, file, {
                   upsert: true,
-                  contentType: file.mimetype,
+                  contentType: file.type,
             });
             const imgData = Supabase.adminClient().storage.from(bucketName).getPublicUrl(filePath);
             if (error) {
