@@ -36,7 +36,7 @@ class TeamService {
       }
 
       getTeamByYear = async ({ starting_year, ending_year }: GetTeamByYearDtoType) => {
-            const { data, error } = await Supabase.adminClient().from('team').select('*').eq('starting_year', starting_year).eq('ending_year', ending_year).order('starting_year', { ascending: false }).order('ending_year', { ascending: false });
+            const { data, error } = await Supabase.adminClient().from('team').select('*').eq('starting_year', starting_year).eq('ending_year', ending_year).order('is_lead', { ascending: false }).order('starting_year', { ascending: false }).order('ending_year', { ascending: false });
             if (error) {
                   throw new HttpError(400, error.message);
             }
@@ -66,7 +66,9 @@ class TeamService {
       }
 
       getLatestTeam = async () => {
-            const { data, error } = await Supabase.adminClient().from('team').select('*').order('starting_year', { ascending: false }).order('ending_year', { ascending: false }).limit(1);
+            const starting_year = Number(new Date().getFullYear());
+            const ending_year = starting_year + 1;
+            const { data, error } = await Supabase.adminClient().from('team').select('*').eq('starting_year', starting_year).eq('ending_year', ending_year).order('is_lead', { ascending: false }).order('starting_year', { ascending: false }).order('ending_year', { ascending: false });
             if (error) {
                   throw new HttpError(400, error.message);
             }
