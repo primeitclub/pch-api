@@ -1,7 +1,7 @@
 import { env, HttpError } from "../../lib";
 import Supabase from "../../lib/supabase";
 import { AuthenticatedRequest } from "../../utils/types";
-import { CreateTeamDto, DeleteTeamDto, GetTeamByYearDto, TeamDto, UpdateTeamDto } from "./team.dto";
+import { AllTeamDto, CreateTeamDto, DeleteTeamDto, GetTeamByYearDto, TeamDto, UpdateTeamDto } from "./team.dto";
 import TeamService from "./team.service";
 import { Request, Response } from "express";
 import { deleteFile } from "../../middleware/upload.middleware";
@@ -28,13 +28,13 @@ class TeamController {
                   });
                   if (!parsed.success) {
                         await Supabase.deleteFile(env.BUCKET_NAME!, req.body.img_path);
-                        await deleteFile(req.body.img_path);
+                        await deleteFile(req.body.file_path);
                         throw new HttpError(400, "Invalid request body", parsed.error.issues);
                   }
                   const team = await this.teamService.createTeam(parsed.data);
                   res.status(201).json({
                         message: "Team created successfully",
-                        data: CreateTeamDto.parse(team),
+                        data: TeamDto.parse(team),
                   });
             } catch (error) {
                   if (error instanceof HttpError) {
@@ -73,7 +73,7 @@ class TeamController {
                   });
                   res.status(200).json({
                         message: "Team updated successfully",
-                        data: UpdateTeamDto.parse(team),
+                        data: TeamDto.parse(team),
                   });
             } catch (error) {
                   if (error instanceof HttpError) {
@@ -118,7 +118,7 @@ class TeamController {
                   const team = await this.teamService.getTeamByYear(parsed.data);
                   res.status(200).json({
                         message: "Team by year fetched successfully",
-                        data: TeamDto.parse(team),
+                        data: AllTeamDto.parse(team),
                   });
             } catch (error) {
                   if (error instanceof HttpError) {
@@ -134,7 +134,7 @@ class TeamController {
                   const team = await this.teamService.getLatestTeam();
                   res.status(200).json({
                         message: "Latest team fetched successfully",
-                        data: TeamDto.parse(team),
+                        data: AllTeamDto.parse(team),
                   });
             } catch (error) {
                   if (error instanceof HttpError) {
