@@ -3,7 +3,10 @@ import { z } from "zod";
 export const CreateTeamDto = z.object({
       id: z.string().optional(),
       name: z.string().min(1, "Name is required").regex(/^[A-Z]/, "Name must start with a capital letter"),
-      designation: z.string().min(1, "Designation is required").regex(/^[A-Z]/, "Designation must start with a capital letter"),
+      designation: z.string().min(1, "Designation is required").regex(/^[A-Z]/, "Designation must start with a capital letter").refine(
+            (val) => !/\s{2,}/.test(val),
+            "Designation cannot contain more than one space in a row"
+      ),
       role: z.string().regex(/^[A-Z]/, "Role must start with a capital letter").nullable().optional(),
       // img_sub_url: z.string().min(1, "Image URL is required"),
       img_url: z.string().min(1, "Image URL is required"),
@@ -24,7 +27,10 @@ export const CreateTeamDto = z.object({
 export const UpdateTeamDto = z.object({
       id: z.string().min(1, "Id is required"),
       name: z.string().min(1, "Name is required").regex(/^[A-Z]/, "Name must start with a capital letter").optional(),
-      designation: z.string().min(1, "Designation is required").regex(/^[A-Z]/, "Designation must start with a capital letter").optional(),
+      designation: z.string().min(1, "Designation is required").regex(/^[A-Z]/, "Designation must start with a capital letter").refine(
+            (val) => !/\s{2,}/.test(val),
+            "Designation cannot contain more than one space in a row"
+      ).optional(),
       role: z.string().regex(/^[A-Z]/, "Role must start with a capital letter").nullable().optional(),
       img_url: z.string().min(1, "Image URL is required").optional(),
       is_lead: z.boolean().optional(),

@@ -13,7 +13,7 @@ class TeamController {
                   const parsedStartingYear = parseInt(req.body.starting_year);
                   const parsedEndingYear = parseInt(req.body.ending_year);
                   // const isLead = req.body.is_lead === 'true' ? true : false;
-                  const isLead = req.body.designation.toLowerCase() === 'creative lead' ? true : false;
+                  const isLead = req.body.designation.replace(/\s+/g, '').toLowerCase() === 'creativelead' ? true : false;
                   const isExist = await this.teamService.getTeamLead(parsedStartingYear, parsedEndingYear);
                   if (isExist && isLead) {
                         throw new HttpError(400, "Creative lead already exists");
@@ -49,9 +49,10 @@ class TeamController {
             try {
                   const parsedStartingYear = parseInt(req.body?.starting_year);
                   const parsedEndingYear = parseInt(req.body?.ending_year);
-                  const isLead = req.body?.designation?.toLowerCase() === 'creative lead' ? true : false;
-                  const isExistById = await this.teamService.getTeamLeadById(req.params.id);
-                  if (isExistById && isLead) {
+                  const isLead = req.body?.designation?.replace(/\s+/g, '').toLowerCase() === 'creativelead' ? true : false;
+                  const teamById = await this.teamService.getTeamById(req.params.id);
+                  const isExists = await this.teamService.getTeamLead(teamById?.starting_year, teamById?.ending_year);
+                  if (isExists && isLead) {
                         throw new HttpError(400, "Creative lead already exists");
                   }
                   const parsed = UpdateTeamDto.safeParse({

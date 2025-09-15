@@ -54,8 +54,8 @@ class TeamService {
             return data;
       }
 
-      getTeamLeadById = async (id: string) => {
-            const { data, error } = await Supabase.adminClient().from('team').select('*').eq('is_lead', true).eq('id', id).single();
+      getTeamById = async (id: string) => {
+            const { data, error } = await Supabase.adminClient().from('team').select('*').eq('id', id).single();
             if (error) {
                   if (error.code === 'PGRST116') {
                         return null;
@@ -66,9 +66,10 @@ class TeamService {
       }
 
       getLatestTeam = async () => {
-            const starting_year = Number(new Date().getFullYear());
-            const ending_year = starting_year + 1;
-            const { data, error } = await Supabase.adminClient().from('team').select('*').eq('starting_year', starting_year).eq('ending_year', ending_year).order('is_lead', { ascending: false }).order('starting_year', { ascending: false }).order('ending_year', { ascending: false });
+            // const starting_year = Number(new Date().getFullYear());
+            // const ending_year = starting_year + 1;
+            // const { data, error } = await Supabase.adminClient().from('team').select('*').eq('starting_year', starting_year).eq('ending_year', ending_year).order('is_lead', { ascending: false }).order('starting_year', { ascending: false }).order('ending_year', { ascending: false });
+            const { data, error } = await Supabase.adminClient().from('team').select('*').order('is_lead', { ascending: false }).order('starting_year', { ascending: false }).order('ending_year', { ascending: false });
             if (error) {
                   throw new HttpError(400, error.message);
             }
