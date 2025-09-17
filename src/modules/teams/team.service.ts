@@ -66,14 +66,20 @@ class TeamService {
       }
 
       getLatestTeam = async () => {
-            // const starting_year = Number(new Date().getFullYear());
-            // const ending_year = starting_year + 1;
-            // const { data, error } = await Supabase.adminClient().from('team').select('*').eq('starting_year', starting_year).eq('ending_year', ending_year).order('is_lead', { ascending: false }).order('starting_year', { ascending: false }).order('ending_year', { ascending: false });
-            const { data, error } = await Supabase.adminClient().from('team').select('*').order('is_lead', { ascending: false }).order('starting_year', { ascending: false }).order('ending_year', { ascending: false });
-            if (error) {
-                  throw new HttpError(400, error.message);
+            const { data: latestTeam } = await Supabase.adminClient().from('team').select('*').order("ending_year", { ascending: false })
+                  .order("starting_year", { ascending: false })
+                  .limit(1);
+            if (latestTeam && latestTeam.length > 0) {
+                  const { starting_year, ending_year } = latestTeam[0];
+                  const { data: team } = await Supabase.adminClient().from('team').select('*').eq('starting_year', starting_year).eq('ending_year', ending_year).
+                        order("is_lead", { ascending: false });
+                  if (team && team.length > 0) {
+                        return team
+                  }
+                  throw new HttpError(400, "Team not found");
             }
-            return data;
+            throw new HttpError(400, "Team not found");
+
       }
 }
 
